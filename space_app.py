@@ -1,8 +1,10 @@
 """Point d'entrée du Space Hugging Face (SDK Gradio).
 
 L'API FastAPI (app/main.py) reste le cœur du service : on y monte une interface Gradio
-sur /gradio, et on sert le tout avec uvicorn sur le port 7860 attendu par Hugging Face.
+sur /gradio, et on sert le tout avec uvicorn sur le port attendu par Hugging Face.
 """
+import os
+
 import gradio as gr
 import uvicorn
 
@@ -33,4 +35,8 @@ demo = gr.Interface(
 app = gr.mount_gradio_app(app, demo, path="/gradio")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    # Sur Hugging Face, le port et l'adresse sont fournis par les variables de Gradio
+    host = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
+    port = int(os.getenv("GRADIO_SERVER_PORT", "7860"))
+    print(f"Démarrage sur {host}:{port}")
+    uvicorn.run(app, host=host, port=port)
