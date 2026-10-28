@@ -77,6 +77,15 @@ jobs:
           name: model
           path: models
 
+      - name: Vérifier la configuration Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          [ -n "$HF_TOKEN" ] || { echo "::error::Secret HF_TOKEN manquant (Settings > Secrets and variables > Actions > Secrets)"; exit 1; }
+          [ -n "$HF_SPACE" ] || { echo "::error::Variable HF_SPACE manquante (Settings > Secrets and variables > Actions > Variables)"; exit 1; }
+          echo "Space cible : $HF_SPACE"
+
       - name: Préparer les fichiers du Space
         run: |
           mkdir space
