@@ -1,0 +1,9 @@
+.venv
+.git
+.dvc
+mlruns
+mlflow.db
+logs
+data
+reports
+tests

@@ -1,0 +1,101 @@
+# Étapes 3 à 5 : CI/CD -> Build Docker -> Déploiement sur Hugging Face Spaces
+name: MLOps CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  train-and-test:
+    name: 1-2. Entraînement + Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements-dev.txt
+
+      - name: Pipeline DVC (prepare -> train -> monitor)
+        run: dvc repro
+
+      - name: Métriques du modèle
+        run: dvc metrics show
+
+      - name: Tests (API + seuil de précision)
+        run: pytest -v
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model
+          path: models/model.pkl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: reports/
+
+  build:
+    name: 4. Build Docker
+    needs: train-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: model
+          path: models
+
+      - name: Construire l'image
+        run: docker build -t iris-mlops-api .
+
+      - name: Test de l'image (smoke test)
+        run: |
+          docker run -d -p 7860:7860 --name api iris-mlops-api
+          sleep 8
+          curl -f http://localhost:7860/health
+          curl -f -X POST http://localhost:7860/predict -H "Content-Type: application/json" \
+            -d '{"sepal_length":6.7,"sepal_width":3.0,"petal_length":5.2,"petal_width":2.3}'
+
+  deploy:
+    name: 5. Déploiement Hugging Face Spaces
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: model
+          path: models
+
+      - name: Préparer les fichiers du Space
+        run: |
+          mkdir space
+          cp -r app models space_app.py space/
+          cp requirements-space.txt space/requirements.txt
+          cp space_README.md space/README.md
+
+      - name: Envoyer sur Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          pip install huggingface_hub
+          python -c "
+          import os
+          from huggingface_hub import HfApi
+          api = HfApi(token=os.environ['HF_TOKEN'])
+          api.create_repo(os.environ['HF_SPACE'], repo_type='space', space_sdk='gradio', exist_ok=True)
+          api.upload_folder(folder_path='space', repo_id=os.environ['HF_SPACE'], repo_type='space',
+                            commit_message='Déploiement depuis GitHub Actions', delete_patterns=['*'])
+          print('https://huggingface.co/spaces/' + os.environ['HF_SPACE'])
+          "

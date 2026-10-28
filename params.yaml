@@ -1,0 +1,14 @@
+data:
+  path: data/iris.csv
+  test_size: 0.2
+  random_state: 42
+
+train:
+  n_estimators: 100
+  max_depth: 5
+  model_path: models/model.pkl
+  metrics_path: reports/metrics.json
+
+monitor:
+  report_path: reports/drift_report.html
+  production_log: logs/predictions.csv

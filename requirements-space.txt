@@ -1,0 +1,5 @@
+# Dépendances du Space Hugging Face (Gradio, FastAPI et uvicorn sont fournis par le SDK Gradio)
+scikit-learn==1.9.1
+pandas==2.3.3
+numpy==2.5.4
+joblib==1.6.0

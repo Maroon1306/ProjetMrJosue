@@ -1,0 +1,33 @@
+stages:
+  prepare:
+    cmd: python src/prepare_data.py
+    deps:
+      - src/prepare_data.py
+    params:
+      - data.path
+    outs:
+      - data/iris.csv
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - data/iris.csv
+    params:
+      - data
+      - train
+    outs:
+      - models/model.pkl
+    metrics:
+      - reports/metrics.json:
+          cache: false
+
+  monitor:
+    cmd: python src/monitor.py
+    deps:
+      - src/monitor.py
+      - data/iris.csv
+      - models/model.pkl
+    outs:
+      - reports/drift_report.html:
+          cache: false

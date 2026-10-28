@@ -1,0 +1,61 @@
+{
+  "metrics": [
+    {
+      "id": "15e89f895b482f9b84ba7274ed18a106",
+      "metric_name": "DriftedColumnsCount(drift_share=0.5)",
+      "config": {
+        "type": "evidently:metric_v2:DriftedColumnsCount",
+        "drift_share": 0.5
+      },
+      "value": {
+        "count": 1.0,
+        "share": 0.25
+      }
+    },
+    {
+      "id": "2a802a425a158788ebfc9d82d0eddbdd",
+      "metric_name": "ValueDrift(column=sepal_length,method=K-S p_value,threshold=0.05)",
+      "config": {
+        "type": "evidently:metric_v2:ValueDrift",
+        "column": "sepal_length",
+        "method": "K-S p_value",
+        "threshold": 0.05
+      },
+      "value": 0.9613915637600573
+    },
+    {
+      "id": "8c08e50a5c960c67bc077126582e3c35",
+      "metric_name": "ValueDrift(column=sepal_width,method=K-S p_value,threshold=0.05)",
+      "config": {
+        "type": "evidently:metric_v2:ValueDrift",
+        "column": "sepal_width",
+        "method": "K-S p_value",
+        "threshold": 0.05
+      },
+      "value": 0.9999462126008631
+    },
+    {
+      "id": "15ab49c15df043ef6e5e213b0fe0b716",
+      "metric_name": "ValueDrift(column=petal_length,method=K-S p_value,threshold=0.05)",
+      "config": {
+        "type": "evidently:metric_v2:ValueDrift",
+        "column": "petal_length",
+        "method": "K-S p_value",
+        "threshold": 0.05
+      },
+      "value": 5.109814644907919e-06
+    },
+    {
+      "id": "35c83f6627eff875a70da927ceabbdbb",
+      "metric_name": "ValueDrift(column=petal_width,method=K-S p_value,threshold=0.05)",
+      "config": {
+        "type": "evidently:metric_v2:ValueDrift",
+        "column": "petal_width",
+        "method": "K-S p_value",
+        "threshold": 0.05
+      },
+      "value": 0.941639629630099
+    }
+  ],
+  "tests": []
+}

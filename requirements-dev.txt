@@ -1,0 +1,9 @@
+# Dépendances pour entraîner, monitorer et tester (local + CI)
+-r requirements.txt
+PyYAML==6.0.3
+mlflow==3.17.2
+evidently==0.7.23
+dvc==3.67.1
+gradio==6.31.0
+pytest==9.2.0
+httpx==0.28.1

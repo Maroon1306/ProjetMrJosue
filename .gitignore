@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+mlruns/
+mlflow.db
+logs/
+/data/iris.csv
+/models/model.pkl
