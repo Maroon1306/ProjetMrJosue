@@ -104,6 +104,8 @@ jobs:
           from huggingface_hub import HfApi
           api = HfApi(token=os.environ['HF_TOKEN'])
           api.create_repo(os.environ['HF_SPACE'], repo_type='space', space_sdk='gradio', exist_ok=True)
+          # Matériel gratuit CPU (le modèle n'a pas besoin de GPU)
+          api.request_space_hardware(os.environ['HF_SPACE'], hardware='cpu-basic')
           api.upload_folder(folder_path='space', repo_id=os.environ['HF_SPACE'], repo_type='space',
                             commit_message='Déploiement depuis GitHub Actions', delete_patterns=['*'])
           print('https://huggingface.co/spaces/' + os.environ['HF_SPACE'])
