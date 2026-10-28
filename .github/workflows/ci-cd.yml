@@ -80,7 +80,7 @@ jobs:
       - name: Vérifier la configuration Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'Michael1306/iris-mlops-api' }}
         run: |
           [ -n "$HF_TOKEN" ] || { echo "::error::Secret HF_TOKEN manquant (Settings > Secrets and variables > Actions > Secrets)"; exit 1; }
           [ -n "$HF_SPACE" ] || { echo "::error::Variable HF_SPACE manquante (Settings > Secrets and variables > Actions > Variables)"; exit 1; }
@@ -96,7 +96,7 @@ jobs:
       - name: Envoyer sur Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'Michael1306/iris-mlops-api' }}
         run: |
           pip install huggingface_hub
           python -c "
