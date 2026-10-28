@@ -15,7 +15,7 @@ pinned: false
 API FastAPI servant un modèle scikit-learn (RandomForest) entraîné sur le jeu de données Iris.
 Déployée automatiquement depuis GitHub Actions.
 
-- `GET /` : interface web
-- `GET /gradio` : interface Gradio
-- `POST /predict` : prédiction
+- `GET /` : interface Gradio
+- `POST /predict` : prédiction (API FastAPI)
+- `GET /health` : état du service
 - `GET /docs` : documentation Swagger

@@ -1,22 +1,25 @@
-"""Point d'entrée du Space Hugging Face (SDK Gradio).
+"""Point d'entrée du Space Hugging Face (SDK Gradio, matériel ZeroGPU).
 
-L'API FastAPI (app/main.py) reste le cœur du service : on y monte une interface Gradio
-sur /gradio, et on sert le tout avec uvicorn sur le port attendu par Hugging Face.
+C'est Gradio qui lance le serveur (demo.launch) : ZeroGPU ne démarre correctement que
+de cette façon. On y ajoute ensuite les routes de l'API FastAPI (app/main.py) :
+/predict et /health, documentées sur /docs.
 """
 import os
 
-import gradio as gr
-import uvicorn
-
-from app.main import CLASSES, IrisInput, app, predict
-
 try:
-    # Matériel ZeroGPU de Hugging Face : il exige au moins une fonction marquée @spaces.GPU
+    # ZeroGPU exige au moins une fonction marquée @spaces.GPU (paquet présent sur Hugging Face)
     import spaces
     gpu = spaces.GPU
 except ImportError:
     def gpu(fn):
         return fn
+
+import gradio as gr
+from fastapi.routing import APIRoute
+
+from app.main import CLASSES, IrisInput, app as api, predict
+
+API_PATHS = {"/predict", "/health"}
 
 
 @gpu
@@ -38,15 +41,17 @@ demo = gr.Interface(
     ],
     outputs=gr.Label(num_top_classes=len(CLASSES), label="Espèce prédite"),
     title="Classification d'Iris (MLOps)",
-    description="Modèle scikit-learn servi par FastAPI. API : /predict · Swagger : /docs",
+    description="Modèle scikit-learn servi par FastAPI. API : POST /predict · Swagger : /docs",
 )
 
-# ssr_mode=False : sinon, sur Hugging Face, Gradio lance un serveur Node.js qui occupe le port 7860
-app = gr.mount_gradio_app(app, demo, path="/gradio", ssr_mode=False)
-
 if __name__ == "__main__":
-    # Sur Hugging Face, le port et l'adresse sont fournis par les variables de Gradio
-    host = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
-    port = int(os.getenv("GRADIO_SERVER_PORT", "7860"))
-    print(f"Démarrage sur {host}:{port}")
-    uvicorn.run(app, host=host, port=port)
+    demo.launch(
+        server_name=os.getenv("GRADIO_SERVER_NAME", "0.0.0.0"),
+        server_port=int(os.getenv("GRADIO_SERVER_PORT", "7860")),
+        ssr_mode=False,  # sinon Gradio lance un serveur Node.js en plus sur Hugging Face
+        app_kwargs={"docs_url": "/docs"},
+        prevent_thread_lock=True,
+    )
+    # Routes FastAPI placées en tête pour qu'elles passent avant celles de Gradio
+    demo.app.router.routes[0:0] = [r for r in api.routes if isinstance(r, APIRoute) and r.path in API_PATHS]
+    demo.block_thread()
