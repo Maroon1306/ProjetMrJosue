@@ -18,4 +18,5 @@ Déployée automatiquement depuis GitHub Actions.
 - `GET /` : interface Gradio
 - `POST /predict` : prédiction (API FastAPI)
 - `GET /health` : état du service
+- `GET /monitoring` : monitoring en temps réel (trafic, prédictions, dérive des données)
 - `GET /docs` : documentation Swagger

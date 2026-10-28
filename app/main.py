@@ -9,6 +9,8 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from app.monitoring import monitoring_summary
+
 MODEL_PATH = Path("models/model.pkl")
 LOG_PATH = Path("logs/predictions.csv")
 FEATURES = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
@@ -53,6 +55,12 @@ def predict(data: IrisInput):
         "class_name": CLASSES[pred],
         "probabilities": {c: round(float(p), 4) for c, p in zip(CLASSES, proba)},
     }
+
+
+@app.get("/monitoring")
+def monitoring():
+    """Indicateurs de monitoring en temps réel (trafic, prédictions, dérive des données)."""
+    return monitoring_summary(LOG_PATH)
 
 
 @app.get("/", response_class=HTMLResponse)

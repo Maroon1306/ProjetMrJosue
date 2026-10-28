@@ -16,11 +16,21 @@ Projet d'IA de bout en bout qui suit le cycle MLOps complet :
 | 3 | Intégration et déploiement continus | **GitHub Actions** | [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) |
 | 4 | Conteneurisation | **Docker** | [`Dockerfile`](Dockerfile) |
 | 5 | Déploiement | **Hugging Face Spaces** (SDK Gradio, offre gratuite) | job `deploy` du workflow, [`space_app.py`](space_app.py) |
-| 6 | Monitoring de la dérive des données | **Evidently AI** | [`src/monitor.py`](src/monitor.py) |
+| 6 | Monitoring de la dérive des données (rapport) | **Evidently AI** | [`src/monitor.py`](src/monitor.py) |
+| 6 | Monitoring en temps réel (trafic, prédictions, dérive) | **Gradio + SciPy** | [`app/monitoring.py`](app/monitoring.py), onglet du Space, `GET /monitoring` |
 
 **Boucle de retour (6 → 1)** : l'API enregistre chaque requête dans `logs/predictions.csv`.
 Evidently compare ces données de production aux données d'entraînement. En cas de dérive,
 on relance `dvc repro` pour ré-entraîner le modèle, puis un `git push` redéploie automatiquement.
+
+## Monitoring en temps réel
+
+L'onglet **« Monitoring temps réel »** du Space se met à jour toutes les 5 secondes :
+nombre de prédictions, répartition par espèce, évolution des valeurs reçues, et dérive par
+variable (test de Kolmogorov-Smirnov, comme Evidently, seuil p < 0.05). Une alerte s'affiche
+quand au moins la moitié des variables dérivent. Les boutons « Simuler 50 requêtes normales /
+avec dérive » permettent de faire la démonstration en direct. Les mêmes indicateurs sont
+disponibles en JSON sur `GET /monitoring`.
 
 ## Lancer le projet en local
 
