@@ -32,7 +32,8 @@ demo = gr.Interface(
     description="Modèle scikit-learn servi par FastAPI. API : /predict · Swagger : /docs",
 )
 
-app = gr.mount_gradio_app(app, demo, path="/gradio")
+# ssr_mode=False : sinon, sur Hugging Face, Gradio lance un serveur Node.js qui occupe le port 7860
+app = gr.mount_gradio_app(app, demo, path="/gradio", ssr_mode=False)
 
 if __name__ == "__main__":
     # Sur Hugging Face, le port et l'adresse sont fournis par les variables de Gradio
