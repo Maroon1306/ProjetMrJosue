@@ -10,7 +10,16 @@ import uvicorn
 
 from app.main import CLASSES, IrisInput, app, predict
 
+try:
+    # Matériel ZeroGPU de Hugging Face : il exige au moins une fonction marquée @spaces.GPU
+    import spaces
+    gpu = spaces.GPU
+except ImportError:
+    def gpu(fn):
+        return fn
 
+
+@gpu
 def gradio_predict(sepal_length, sepal_width, petal_length, petal_width):
     result = predict(IrisInput(
         sepal_length=sepal_length, sepal_width=sepal_width,
